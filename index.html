@@ -203,10 +203,10 @@ body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-hei
 <!-- OPOMNIK -->
 <div class="card">
   <div class="card-title">🔔 Opomniki za račun</div>
-  <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Račun pošlji <strong>2× letno</strong> — april (za jan–jun) in oktober (za jul–dec).</p>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Račun pošlji <strong>2× letno</strong> — junij (za jan–jun) in december (za jul–dec).</p>
   <div style="display:flex;gap:8px">
-    <button class="btn btn-blue" style="font-size:13px;padding:11px" onclick="dodajVKalendar('april')">📅 Dodaj april v koledar</button>
-    <button class="btn btn-blue" style="font-size:13px;padding:11px" onclick="dodajVKalendar('oktober')">📅 Dodaj oktober</button>
+    <button class="btn btn-blue" style="font-size:13px;padding:11px" onclick="dodajVKalendar('junij')">📅 Dodaj junij v koledar</button>
+    <button class="btn btn-blue" style="font-size:13px;padding:11px" onclick="dodajVKalendar('december')">📅 Dodaj december</button>
   </div>
 </div>
 
@@ -351,12 +351,12 @@ function clearHist() {
 function dodajVKalendar(mesec) {
   const leto = new Date().getFullYear();
   let datum, naslov, opis;
-  if (mesec === 'april') {
-    datum = leto + '0401';
+  if (mesec === 'junij') {
+    datum = leto + '0601';
     naslov = 'Pošlji račun elektrika – CTP najemnik (jan–jun)';
     opis = 'Obračun elektrike za najemnika Partner Graf – obdobje januar–junij ' + leto;
   } else {
-    datum = leto + '1001';
+    datum = leto + '1201';
     naslov = 'Pošlji račun elektrika – CTP najemnik (jul–dec)';
     opis = 'Obračun elektrike za najemnika Partner Graf – obdobje julij–december ' + leto;
   }
@@ -375,11 +375,11 @@ function checkRacunOpomnik() {
   const mesec = zdaj.getMonth() + 1; // 1-12
   const leto = zdaj.getFullYear();
 
-  // Obdobja za račun: april (Q1+Q2 = jan-jun) in oktober (Q3+Q4 = jul-dec)
-  const jeApril = mesec === 4;
-  const jeOktober = mesec === 10;
+  // Obdobja za račun: junij (jan-jun) in december (jul-dec)
+  const jeJunij = mesec === 6;
+  const jeDecember = mesec === 12;
 
-  if (!jeApril && !jeOktober) return;
+  if (!jeJunij && !jeDecember) return;
 
   // Preveri ali smo že poslali račun ta mesec
   let poslan = {};
@@ -388,7 +388,7 @@ function checkRacunOpomnik() {
   const kljuc = leto + '-' + mesec;
   if (poslan[kljuc]) return; // Že označeno
 
-  const obdobje = jeApril ? 'januar–junij ' + leto : 'julij–december ' + leto;
+  const obdobje = jeJunij ? 'januar–junij ' + leto : 'julij–december ' + leto;
   document.getElementById('racunBannerSub').textContent = 'Obdobje: ' + obdobje;
   document.getElementById('racunBanner').style.display = 'block';
 }
@@ -402,7 +402,7 @@ function oznациPlacano() {
   poslan[kljuc] = true;
   localStorage.setItem(KEY_RACUN, JSON.stringify(poslan));
   document.getElementById('racunBanner').style.display = 'none';
-  alert('✅ Označeno! Naslednji opomnik: ' + (new Date().getMonth() < 9 ? 'oktober' : 'april naslednje leto'));
+  alert('✅ Označeno! Naslednji opomnik: ' + (new Date().getMonth() < 11 ? 'december ' + new Date().getFullYear() : 'junij ' + (new Date().getFullYear() + 1)));
 }
 
 window.addEventListener('load', () => {
