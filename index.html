@@ -96,6 +96,15 @@ body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-hei
   <button onclick="document.getElementById('installBanner').style.display='none'" style="margin-left:10px;background:none;border:none;font-size:16px;cursor:pointer;color:#5a4a00">✕</button>
 </div>
 
+<div id="racunBanner" style="display:none;background:#C00000;color:white;padding:14px 16px;font-size:14px;text-align:center;font-weight:bold">
+  🔔 ČAS JE ZA RAČUN NAJEMNIKU!
+  <div style="font-size:12px;font-weight:normal;margin-top:4px;opacity:.9" id="racunBannerSub"></div>
+  <div style="margin-top:10px;display:flex;gap:8px;justify-content:center">
+    <button onclick="oznациPlacano()" style="background:white;color:#C00000;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:bold;cursor:pointer">✅ Račun poslan</button>
+    <button onclick="document.getElementById('racunBanner').style.display='none'" style="background:rgba(255,255,255,.2);color:white;border:none;border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer">Zapri</button>
+  </div>
+</div>
+
 <div class="wrap">
 
 <!-- KORAK 1 -->
@@ -188,6 +197,16 @@ body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-hei
   </table>
   <div style="margin-top:16px">
     <button class="btn btn-green" onclick="shrani()">💾 Shrani v zgodovino</button>
+  </div>
+</div>
+
+<!-- OPOMNIK -->
+<div class="card">
+  <div class="card-title">🔔 Opomniki za račun</div>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Račun pošlji <strong>2× letno</strong> — april (za jan–jun) in oktober (za jul–dec).</p>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-blue" style="font-size:13px;padding:11px" onclick="dodajVKalendar('april')">📅 Dodaj april v koledar</button>
+    <button class="btn btn-blue" style="font-size:13px;padding:11px" onclick="dodajVKalendar('oktober')">📅 Dodaj oktober</button>
   </div>
 </div>
 
@@ -322,6 +341,64 @@ function clearHist() {
   }
 }
 
+// Google Calendar
+function dodajVKalendar(mesec) {
+  const leto = new Date().getFullYear();
+  let datum, naslov, opis;
+  if (mesec === 'april') {
+    datum = leto + '0401';
+    naslov = 'Pošlji račun elektrika – CTP najemnik (jan–jun)';
+    opis = 'Obračun elektrike za najemnika Partner Graf – obdobje januar–junij ' + leto;
+  } else {
+    datum = leto + '1001';
+    naslov = 'Pošlji račun elektrika – CTP najemnik (jul–dec)';
+    opis = 'Obračun elektrike za najemnika Partner Graf – obdobje julij–december ' + leto;
+  }
+  const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+    '&text=' + encodeURIComponent(naslov) +
+    '&dates=' + datum + '/' + datum +
+    '&details=' + encodeURIComponent(opis) +
+    '&recur=RRULE:FREQ=YEARLY';
+  window.open(url, '_blank');
+}
+
+// Račun opomnik - 2x letno: april in oktober
+function checkRacunOpomnik() {
+  const KEY_RACUN = 'ctp_racun_poslan';
+  const zdaj = new Date();
+  const mesec = zdaj.getMonth() + 1; // 1-12
+  const leto = zdaj.getFullYear();
+
+  // Obdobja za račun: april (Q1+Q2 = jan-jun) in oktober (Q3+Q4 = jul-dec)
+  const jeApril = mesec === 4;
+  const jeOktober = mesec === 10;
+
+  if (!jeApril && !jeOktober) return;
+
+  // Preveri ali smo že poslali račun ta mesec
+  let poslan = {};
+  try { poslan = JSON.parse(localStorage.getItem(KEY_RACUN) || '{}'); } catch(e){}
+
+  const kljuc = leto + '-' + mesec;
+  if (poslan[kljuc]) return; // Že označeno
+
+  const obdobje = jeApril ? 'januar–junij ' + leto : 'julij–december ' + leto;
+  document.getElementById('racunBannerSub').textContent = 'Obdobje: ' + obdobje;
+  document.getElementById('racunBanner').style.display = 'block';
+}
+
+function oznациPlacano() {
+  const KEY_RACUN = 'ctp_racun_poslan';
+  const zdaj = new Date();
+  const kljuc = zdaj.getFullYear() + '-' + (zdaj.getMonth() + 1);
+  let poslan = {};
+  try { poslan = JSON.parse(localStorage.getItem(KEY_RACUN) || '{}'); } catch(e){}
+  poslan[kljuc] = true;
+  localStorage.setItem(KEY_RACUN, JSON.stringify(poslan));
+  document.getElementById('racunBanner').style.display = 'none';
+  alert('✅ Označeno! Naslednji opomnik: ' + (new Date().getMonth() < 9 ? 'oktober' : 'april naslednje leto'));
+}
+
 window.addEventListener('load', () => {
   // Pokaži banner za iOS če ni že nameščen
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -329,6 +406,9 @@ window.addEventListener('load', () => {
   if (isIOS && !isStandalone) {
     document.getElementById('installBanner').style.display = 'block';
   }
+
+  // Preveri opomnik za račun
+  checkRacunOpomnik();
   prikaziHist();
   let h = [];
   try { h = JSON.parse(localStorage.getItem(KEY)||'[]'); } catch(e){}
