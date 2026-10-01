@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>⚡ Elektrika – CTP Najemnik</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CTP Elektrika">
+<meta name="theme-color" content="#1F4E79">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231F4E79'/><text y='.9em' font-size='75' x='10'>⚡</text></svg>">
+<style>
+:root {
+  --bg:#f0f4f8;--card:#fff;--primary:#1F4E79;--blue2:#2E75B6;
+  --red:#C00000;--green:#1a7a4a;--text:#1a1a2e;--text2:#666;
+  --border:#d0d8e4;--radius:14px;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  box-sizing:border-box;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#0f1923;--card:#1a2535;--text:#e8edf3;--text2:#9aacbf;--border:#2a3a50;
+}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-height:100%}
+
+.hdr{background:var(--primary);color:#fff;padding:16px 20px;text-align:center}
+.hdr h1{font-size:17px;font-weight:bold}
+.hdr p{font-size:11px;opacity:.8;margin-top:3px}
+
+.wrap{max-width:600px;margin:0 auto;padding:14px}
+
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);
+  box-shadow:0 2px 10px rgba(0,0,0,.08);padding:20px;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:bold;color:var(--primary);text-transform:uppercase;
+  letter-spacing:.5px;border-bottom:2px solid var(--primary);padding-bottom:8px;margin-bottom:16px;
+  display:flex;align-items:center;gap:8px}
+.badge{background:var(--primary);color:#fff;border-radius:50%;width:24px;height:24px;
+  display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+
+.row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.row label{font-size:14px;color:var(--text2);min-width:160px;flex-shrink:0}
+.row input{flex:1;padding:12px 14px;border:1px solid var(--border);border-radius:10px;
+  font-size:16px;background:var(--bg);color:var(--text);outline:none;font-weight:bold;
+  -webkit-appearance:none}
+.row input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(31,78,121,.12)}
+.row .unit{font-size:13px;color:var(--text2);min-width:36px}
+
+.info-green{background:#e8f5e9;color:#1b5e20;border:1px solid #a5d6a7;
+  border-radius:8px;padding:11px 14px;font-size:14px;margin-bottom:4px;display:none}
+
+.btn{width:100%;padding:16px;border:none;border-radius:12px;font-size:16px;
+  font-weight:bold;cursor:pointer;transition:.2s;margin-top:6px;letter-spacing:.3px}
+.btn-blue{background:var(--primary);color:#fff}
+.btn-blue:hover{background:var(--blue2)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{filter:brightness(1.1)}
+
+.res-box{display:none;background:linear-gradient(135deg,var(--primary),var(--blue2));
+  color:#fff;border-radius:var(--radius);padding:22px;margin-bottom:14px;
+  box-shadow:0 4px 18px rgba(0,0,0,.18)}
+.res-box h2{font-size:15px;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:10px}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.res-cell{background:rgba(255,255,255,.14);border-radius:9px;padding:12px}
+.res-cell .lbl{font-size:10px;opacity:.75;text-transform:uppercase;margin-bottom:4px;letter-spacing:.3px}
+.res-cell .val{font-size:20px;font-weight:bold}
+.res-cell .sub{font-size:10px;opacity:.7;margin-top:2px}
+.total{background:var(--red);border-radius:11px;padding:16px;text-align:center}
+.total .lbl{font-size:12px;opacity:.85}
+.total .val{font-size:34px;font-weight:bold;margin:4px 0}
+.total .sub{font-size:12px;opacity:.8}
+
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:var(--primary);color:#fff;padding:8px 11px;text-align:left;font-size:12px}
+.tbl td{padding:8px 11px;border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border:none}
+.tbl .tr-tot td{background:#e3eef8;font-weight:bold;color:var(--primary);font-size:14px}
+.r{text-align:right}
+
+.hist-item{display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:1px solid var(--border)}
+.hist-item:last-child{border:none}
+.hist-sub{color:var(--text2);font-size:11px;margin-top:2px}
+.hist-val{font-weight:bold;color:var(--primary);font-size:16px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>⚡ Obračun elektrike – CTP Najemnik</h1>
+  <p>Partner Graf d.o.o. | MM 3-326022 | Kvartal</p>
+</div>
+
+<div id="installBanner" style="display:none;background:#FFF3CD;border-bottom:1px solid #FFD700;padding:10px 16px;font-size:13px;color:#5a4a00;text-align:center">
+  📲 <strong>Dodaj na domači zaslon:</strong> klikni <strong>↑ Deli</strong> → <strong>Dodaj na zaslon</strong>
+  <button onclick="document.getElementById('installBanner').style.display='none'" style="margin-left:10px;background:none;border:none;font-size:16px;cursor:pointer;color:#5a4a00">✕</button>
+</div>
+
+<div class="wrap">
+
+<!-- KORAK 1 -->
+<div class="card">
+  <div class="card-title"><span class="badge">1</span> Stanje CTP števca</div>
+  <div class="row">
+    <label>Začetno stanje:</label>
+    <input type="number" id="fZadnje" placeholder="13006.34" step="0.01" inputmode="decimal">
+    <span class="unit">kWh</span>
+  </div>
+  <div class="row">
+    <label>Trenutno stanje:</label>
+    <input type="number" id="fTrenutno" placeholder="vnesi" step="0.01" inputmode="decimal">
+    <span class="unit">kWh</span>
+  </div>
+  <div class="info-green" id="porabaInfo">
+    📊 Poraba v kvartalu: <strong id="porabaVal">—</strong> kWh
+  </div>
+</div>
+
+<!-- KORAK 2 -->
+<div class="card">
+  <div class="card-title"><span class="badge">2</span> GEN-I račun</div>
+  <div class="row">
+    <label>Skupaj kWh (MM):</label>
+    <input type="number" id="fKwhMM" placeholder="npr. 3500" step="1" inputmode="numeric">
+    <span class="unit">kWh</span>
+  </div>
+  <div class="row">
+    <label>Znesek z DDV:</label>
+    <input type="number" id="fZnesek" placeholder="npr. 450.00" step="0.01" inputmode="decimal">
+    <span class="unit">€</span>
+  </div>
+  <div class="row">
+    <label>DDV %:</label>
+    <input type="number" id="fDdv" value="22" step="0.5" inputmode="decimal">
+    <span class="unit">%</span>
+  </div>
+</div>
+
+<!-- KORAK 3 -->
+<div class="card">
+  <div class="card-title"><span class="badge">3</span> Izračun</div>
+  <div class="row">
+    <label>Obdobje:</label>
+    <input type="text" id="fObdobje" placeholder="jul–sep 2026">
+    <span class="unit"></span>
+  </div>
+  <button class="btn btn-blue" id="btnIzr" onclick="izracunaj()">⚡ IZRAČUNAJ</button>
+</div>
+
+<!-- REZULTAT -->
+<div class="res-box" id="resBox">
+  <h2>📋 Obračun – <span id="resObdobje"></span></h2>
+  <div class="res-grid">
+    <div class="res-cell">
+      <div class="lbl">Poraba najemnika</div>
+      <div class="val" id="rKwh">—</div>
+      <div class="sub">kWh</div>
+    </div>
+    <div class="res-cell">
+      <div class="lbl">Skupaj MM</div>
+      <div class="val" id="rKwhMM">—</div>
+      <div class="sub">kWh</div>
+    </div>
+    <div class="res-cell">
+      <div class="lbl">Delež</div>
+      <div class="val" id="rDelez">—</div>
+      <div class="sub">%</div>
+    </div>
+    <div class="res-cell">
+      <div class="lbl">Cena/kWh brez DDV</div>
+      <div class="val" id="rCena">—</div>
+      <div class="sub">€/kWh</div>
+    </div>
+  </div>
+  <div class="total">
+    <div class="lbl">ZA PLAČILO (z DDV)</div>
+    <div class="val" id="rTotal">—</div>
+    <div class="sub">Brez DDV: <span id="rBrez">—</span> € &nbsp;|&nbsp; DDV: <span id="rDdv">—</span> €</div>
+  </div>
+</div>
+
+<!-- TABELA -->
+<div class="card" id="tCard" style="display:none">
+  <div class="card-title">📊 Razčlenitev</div>
+  <table class="tbl">
+    <thead><tr><th>Postavka</th><th class="r">Vrednost</th></tr></thead>
+    <tbody id="tBody"></tbody>
+  </table>
+  <div style="margin-top:16px">
+    <button class="btn btn-green" onclick="shrani()">💾 Shrani v zgodovino</button>
+  </div>
+</div>
+
+<!-- ZGODOVINA -->
+<div class="card" id="histCard" style="display:none">
+  <div class="card-title">📅 Zgodovina</div>
+  <div id="histList"></div>
+  <div style="margin-top:12px;text-align:right">
+    <button onclick="clearHist()" style="font-size:12px;color:var(--text2);background:none;border:none;cursor:pointer;text-decoration:underline">Počisti</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const KEY = 'ctp_elektrika_v3';
+let cur = null;
+
+function fmt(n, d=2) {
+  return n.toLocaleString('sl-SI', {minimumFractionDigits:d, maximumFractionDigits:d});
+}
+
+function updPoraba() {
+  const z = parseFloat(document.getElementById('fZadnje').value);
+  const t = parseFloat(document.getElementById('fTrenutno').value);
+  const el = document.getElementById('porabaInfo');
+  if (!isNaN(z) && !isNaN(t) && t >= z) {
+    document.getElementById('porabaVal').textContent = fmt(t - z);
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+document.getElementById('fZadnje').addEventListener('input', updPoraba);
+document.getElementById('fTrenutno').addEventListener('input', updPoraba);
+
+function izracunaj() {
+  const z   = parseFloat(document.getElementById('fZadnje').value);
+  const t   = parseFloat(document.getElementById('fTrenutno').value);
+  const kwh = parseFloat(document.getElementById('fKwhMM').value);
+  const eur = parseFloat(document.getElementById('fZnesek').value);
+  const ddv = parseFloat(document.getElementById('fDdv').value) / 100;
+  const obdobje = document.getElementById('fObdobje').value || '—';
+
+  if (isNaN(z) || isNaN(t))       { alert('Vnesi začetno in trenutno stanje števca!'); return; }
+  if (t < z)                       { alert('Trenutno stanje ne more biti manjše od začetnega!'); return; }
+  if (isNaN(kwh) || kwh <= 0)      { alert('Vnesi skupne kWh iz GEN-I računa!'); return; }
+  if (isNaN(eur) || eur <= 0)      { alert('Vnesi znesek GEN-I računa!'); return; }
+
+  const poraba  = t - z;
+  const delez   = poraba / kwh;
+  const eurBrez = eur / (1 + ddv);
+  const cena    = eurBrez / kwh;
+  const najBrez = cena * poraba;
+  const najDdv  = najBrez * ddv;
+  const najTotal= najBrez + najDdv;
+
+  cur = { obdobje, z, t, poraba, kwh, delez, eur, cena, najBrez, najDdv, najTotal, ddv,
+          datum: new Date().toLocaleDateString('sl-SI') };
+
+  document.getElementById('resBox').style.display = 'block';
+  document.getElementById('resObdobje').textContent = obdobje;
+  document.getElementById('rKwh').textContent    = fmt(poraba);
+  document.getElementById('rKwhMM').textContent  = kwh.toLocaleString('sl-SI');
+  document.getElementById('rDelez').textContent  = fmt(delez * 100, 1);
+  document.getElementById('rCena').textContent   = cena.toFixed(4);
+  document.getElementById('rTotal').textContent  = fmt(najTotal) + ' €';
+  document.getElementById('rBrez').textContent   = fmt(najBrez);
+  document.getElementById('rDdv').textContent    = fmt(najDdv);
+
+  const rows = [
+    ['Obdobje',             obdobje],
+    ['Stanje začetek',      fmt(z)    + ' kWh'],
+    ['Stanje konec',        fmt(t)    + ' kWh'],
+    ['Poraba najemnika',    fmt(poraba) + ' kWh'],
+    ['Skupaj MM (GEN-I)',   kwh.toLocaleString('sl-SI') + ' kWh'],
+    ['Delež najemnika',     fmt(delez*100,2) + ' %'],
+    ['GEN-I z DDV',         fmt(eur)  + ' €'],
+    ['Cena/kWh brez DDV',   cena.toFixed(4) + ' €'],
+    ['—', '—'],
+    ['Najemnik brez DDV',   fmt(najBrez) + ' €'],
+    ['DDV ' + (ddv*100).toFixed(0) + ' %', fmt(najDdv) + ' €'],
+    ['ZA PLAČILO z DDV',    fmt(najTotal) + ' €'],
+  ];
+
+  document.getElementById('tBody').innerHTML = rows.map(([k,v],i) =>
+    k === '—'
+      ? '<tr><td colspan="2" style="padding:4px 0"><hr style="border-color:var(--border)"></td></tr>'
+      : `<tr class="${i===rows.length-1?'tr-tot':''}"><td>${k}</td><td class="r">${v}</td></tr>`
+  ).join('');
+
+  document.getElementById('tCard').style.display = 'block';
+  document.getElementById('resBox').scrollIntoView({behavior:'smooth'});
+}
+
+function shrani() {
+  if (!cur) return;
+  let h = [];
+  try { h = JSON.parse(localStorage.getItem(KEY)||'[]'); } catch(e){}
+  h.unshift({ obdobje:cur.obdobje, datum:cur.datum, kwh:cur.poraba,
+               znesek:cur.najTotal, delez:cur.delez, konec:cur.t });
+  if (h.length > 20) h = h.slice(0, 20);
+  localStorage.setItem(KEY, JSON.stringify(h));
+  document.getElementById('fZadnje').value = cur.t;
+  updPoraba();
+  prikaziHist();
+  alert('✅ Shranjeno!\nNaslednji kvartal: začetno stanje = ' +
+        cur.t.toLocaleString('sl-SI', {minimumFractionDigits:2}) + ' kWh');
+}
+
+function prikaziHist() {
+  let h = [];
+  try { h = JSON.parse(localStorage.getItem(KEY)||'[]'); } catch(e){}
+  const card = document.getElementById('histCard');
+  if (!h.length) { card.style.display='none'; return; }
+  card.style.display = 'block';
+  document.getElementById('histList').innerHTML = h.map(x => `
+    <div class="hist-item">
+      <div>
+        <div style="font-weight:bold;font-size:14px">${x.obdobje}</div>
+        <div class="hist-sub">${x.datum} &nbsp;·&nbsp; ${fmt(x.kwh,1)} kWh &nbsp;·&nbsp; ${fmt(x.delez*100,1)}%</div>
+      </div>
+      <div class="hist-val">${fmt(x.znesek)} €</div>
+    </div>`).join('');
+}
+
+function clearHist() {
+  if (confirm('Počistiti celotno zgodovino?')) {
+    localStorage.removeItem(KEY);
+    prikaziHist();
+  }
+}
+
+window.addEventListener('load', () => {
+  // Pokaži banner za iOS če ni že nameščen
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  if (isIOS && !isStandalone) {
+    document.getElementById('installBanner').style.display = 'block';
+  }
+  prikaziHist();
+  let h = [];
+  try { h = JSON.parse(localStorage.getItem(KEY)||'[]'); } catch(e){}
+  if (h.length && h[0].konec) {
+    document.getElementById('fZadnje').value = h[0].konec;
+  } else {
+    document.getElementById('fZadnje').value = 13006.34;
+  }
+  const now = new Date();
+  const m = ['jan','feb','mar','apr','maj','jun','jul','avg','sep','okt','nov','dec'];
+  const mo = now.getMonth();
+  document.getElementById('fObdobje').value =
+    m[Math.max(0,mo-2)] + '–' + m[mo] + ' ' + now.getFullYear();
+});
+</script>
+</body>
+</html>
