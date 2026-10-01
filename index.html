@@ -112,12 +112,12 @@ body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-hei
   <div class="card-title"><span class="badge">1</span> Stanje CTP števca</div>
   <div class="row">
     <label>Začetno stanje:</label>
-    <input type="number" id="fZadnje" placeholder="13006.34" step="0.01" inputmode="decimal">
+    <input type="text" id="fZadnje" placeholder="13006.34" inputmode="decimal">
     <span class="unit">kWh</span>
   </div>
   <div class="row">
     <label>Trenutno stanje:</label>
-    <input type="number" id="fTrenutno" placeholder="vnesi" step="0.01" inputmode="decimal">
+    <input type="text" id="fTrenutno" placeholder="vnesi" inputmode="decimal">
     <span class="unit">kWh</span>
   </div>
   <div class="info-green" id="porabaInfo">
@@ -130,17 +130,17 @@ body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-hei
   <div class="card-title"><span class="badge">2</span> GEN-I račun</div>
   <div class="row">
     <label>Skupaj kWh (MM):</label>
-    <input type="number" id="fKwhMM" placeholder="npr. 3500" step="1" inputmode="numeric">
+    <input type="text" id="fKwhMM" placeholder="npr. 3500" inputmode="numeric">
     <span class="unit">kWh</span>
   </div>
   <div class="row">
     <label>Znesek z DDV:</label>
-    <input type="number" id="fZnesek" placeholder="npr. 450.00" step="0.01" inputmode="decimal">
+    <input type="text" id="fZnesek" placeholder="npr. 450.00" inputmode="decimal">
     <span class="unit">€</span>
   </div>
   <div class="row">
     <label>DDV %:</label>
-    <input type="number" id="fDdv" value="22" step="0.5" inputmode="decimal">
+    <input type="text" id="fDdv" value="22" inputmode="decimal">
     <span class="unit">%</span>
   </div>
 </div>
@@ -229,9 +229,15 @@ function fmt(n, d=2) {
   return n.toLocaleString('sl-SI', {minimumFractionDigits:d, maximumFractionDigits:d});
 }
 
+// Sprejme vejico ali piko kot decimalno ločilo
+function parseVal(id) {
+  const v = document.getElementById(id).value.trim().replace(',', '.');
+  return parseFloat(v);
+}
+
 function updPoraba() {
-  const z = parseFloat(document.getElementById('fZadnje').value);
-  const t = parseFloat(document.getElementById('fTrenutno').value);
+  const z = parseVal('fZadnje');
+  const t = parseVal('fTrenutno');
   const el = document.getElementById('porabaInfo');
   if (!isNaN(z) && !isNaN(t) && t >= z) {
     document.getElementById('porabaVal').textContent = fmt(t - z);
@@ -245,11 +251,11 @@ document.getElementById('fZadnje').addEventListener('input', updPoraba);
 document.getElementById('fTrenutno').addEventListener('input', updPoraba);
 
 function izracunaj() {
-  const z   = parseFloat(document.getElementById('fZadnje').value);
-  const t   = parseFloat(document.getElementById('fTrenutno').value);
-  const kwh = parseFloat(document.getElementById('fKwhMM').value);
-  const eur = parseFloat(document.getElementById('fZnesek').value);
-  const ddv = parseFloat(document.getElementById('fDdv').value) / 100;
+  const z   = parseVal('fZadnje');
+  const t   = parseVal('fTrenutno');
+  const kwh = parseVal('fKwhMM');
+  const eur = parseVal('fZnesek');
+  const ddv = parseVal('fDdv') / 100;
   const obdobje = document.getElementById('fObdobje').value || '—';
 
   if (isNaN(z) || isNaN(t))       { alert('Vnesi začetno in trenutno stanje števca!'); return; }
